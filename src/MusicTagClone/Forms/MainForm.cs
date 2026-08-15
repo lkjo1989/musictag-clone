@@ -1652,7 +1652,16 @@ public partial class MainForm : Form
     }
 
     private void OnOfficialSite(object? sender, EventArgs e)
-        => MessageBox.Show(this, "官方网站链接待添加", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/lkjo1989/musictag-clone")
+            {
+                UseShellExecute = true
+            });
+        }
+        catch { }
+    }
 
     // ============================================================
     // 歌词编辑对话框 (TagEditPanel 事件)

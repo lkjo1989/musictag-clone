@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **MusicTagClone** is a WinForms audio-tag editor (音乐标签). It edits metadata (tags, cover art, lyrics) for audio files and sources metadata from online music services (网易云音乐, QQ音乐, 酷狗音乐, 酷我音乐, iTunes, Last.fm, MusicBrainz, Discogs).
 
+Project home: <https://github.com/lkjo1989/musictag-clone>
+
 **Important:** All UI text, comments, and log messages are Simplified Chinese. New code should match this style.
 
 ## Build & test
