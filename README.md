@@ -89,7 +89,3 @@ dotnet test tests/MusicTagClone.Tests/MusicTagClone.Tests.csproj --filter "Fully
 ## 🙏 致谢
 
 标签读写依赖开源库 **TagLibSharp**、**MediaInfo.Wrapper.Core**；图标来自 **FontAwesome.Sharp**。
-
-## 📄 License
-
-本项目未指定开源许可证，仅供个人学习参考，请勿用于商业用途。
