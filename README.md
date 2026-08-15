@@ -26,7 +26,7 @@
 | 运行 | Windows（WinForms 程序）；.NET 10 运行时 或 .NET Framework 4.6.1 |
 | 编译 | Windows + [.NET 10 SDK](https://dotnet.microsoft.com/download)（`dotnet --version` 需 ≥ 10.0） |
 
-> 程序同时输出 `net10.0-windows` 与 `net461` 两个目标框架。`net10.0-windows` 使用 MediaInfo 读取标签（对畸形 MP4 容器更宽容），`net461` 使用 TagLibSharp 读取。
+> 程序同时输出 `net10.0-windows` 与 `net461` 两个目标框架。两者都使用 MediaInfo 读取标签（对畸形 MP4 容器更宽容）：`net10.0-windows` 用 `MediaInfo.Wrapper.Core`，`net461` 用 `MediaInfo.Wrapper` + `MediaInfo.Native`；封面/歌词由 TagLibSharp 补充，MediaInfo 解析失败时回退到 TagLibSharp。
 
 ## 🛠️ 编译
 
@@ -38,7 +38,7 @@ dotnet build MusicTagClone.slnx
 dotnet build src/MusicTagClone/MusicTagClone.csproj -f net10.0-windows
 ```
 
-编译产物位于 `src/MusicTagClone/bin/<Configuration>/net10.0-windows/`（或 `net461/`）。程序会自动把依赖 DLL 移入输出目录下的 `libs\` 子目录，主程序通过 `AssemblyResolver`（.NET 10）/ `App.config` probing（.NET Framework）加载，直接运行其中的 `MusicTagClone.exe` 即可。
+编译产物位于 `src/MusicTagClone/bin/<Configuration>/net10.0-windows/`（或 `net461/`）。程序会自动把依赖 DLL 移入输出目录下的 `libs\` 子目录（net461 的 `MediaInfo.Wrapper.dll` 需留在根目录，因为其原生库 `MediaInfo.dll` 按该程序集的目录解析，位于根目录 `x64\`/`x86\` 子目录），主程序通过 `AssemblyResolver`（.NET 10）/ `App.config` probing（.NET Framework）加载，直接运行其中的 `MusicTagClone.exe` 即可。
 
 ### 运行测试
 
@@ -88,4 +88,4 @@ dotnet test tests/MusicTagClone.Tests/MusicTagClone.Tests.csproj --filter "Fully
 
 ## 🙏 致谢
 
-标签读写依赖开源库 **TagLibSharp**、**MediaInfo.Wrapper.Core**；图标来自 **FontAwesome.Sharp**。
+标签读写依赖开源库 **TagLibSharp**、**MediaInfo.Wrapper.Core** / **MediaInfo.Wrapper**；图标来自 **FontAwesome.Sharp**。

@@ -2,7 +2,7 @@ using MusicTagClone.Interfaces;
 using MusicTagClone.Models;
 using TagLib;
 using TagLib.Id3v2;
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER || NETFRAMEWORK
 using MediaInfo;
 using MediaInfo.Model;
 #endif
@@ -10,12 +10,12 @@ using MediaInfo.Model;
 namespace MusicTagClone.Services;
 
 /// <summary>
-/// 标签读写服务 — 读取使用 MediaInfo (net10.0) / TagLibSharp (net461)，
-/// 写入统一使用 TagLibSharp。
+/// 标签读写服务 — 读取使用 MediaInfo（net10.0 用 MediaInfo.Wrapper.Core，
+/// net461 用 MediaInfo.Wrapper），写入统一使用 TagLibSharp。
 ///
 /// 为何读和写用不同库？
 /// - MediaInfo 对畸形/非标 MP4 容器的容错性远强于 TagLibSharp（同 VLC/FFmpeg），
-///   但 MediaInfo 是只读库。
+///   但 MediaInfo 是只读库。net10.0 和 net461 都走 MediaInfo 优先、TagLibSharp 兜底。
 /// - TagLibSharp 支持所有格式的标准标签写入。
 /// - 对于 MediaInfo 能读但 TagLibSharp 写不进去的畸形 M4A 文件，
 ///   M4aTagFixer 会在写入前重建标准 ilst box，使 TagLibSharp 能正常写入。
@@ -39,7 +39,7 @@ public class TagService : ITagService
     {
         return Task.Run(() =>
         {
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER || NETFRAMEWORK
             try
             {
                 var mi = new MediaInfoWrapper(filePath);
@@ -87,7 +87,7 @@ public class TagService : ITagService
     {
         return Task.Run(() =>
         {
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER || NETFRAMEWORK
             try
             {
                 var mi = new MediaInfoWrapper(filePath);
@@ -155,7 +155,7 @@ public class TagService : ITagService
         }
     }
 
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER || NETFRAMEWORK
     /// <summary>MediaInfo → TagData 映射</summary>
     private static TagData MapMediaInfoToTagData(MediaInfoWrapper mi, AudioTags? tags)
     {

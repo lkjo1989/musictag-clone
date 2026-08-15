@@ -35,6 +35,10 @@
     <Using Include="System.Windows.Forms" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.6.3" />
+    <PackageReference Include="MediaInfo.Wrapper" Version="26.1.0" />
+    <!-- MediaInfo.Native 需显式直接引用：它的原生 DLL 靠 build\MediaInfo.Native.targets
+         拷到输出 x64\x86 子目录，但该 targets 只在直接引用时才被 NuGet 导入（传递包不导入 build\ 资产） -->
+    <PackageReference Include="MediaInfo.Native" Version="26.1.0" />
   </ItemGroup>
 
   <!-- FontAwesome 版本（按框架） -->
@@ -59,7 +63,8 @@
     <PackageReference Include="MediaInfo.Wrapper.Core" Version="26.1.0" />
   </ItemGroup>
 
-  <!-- net461: 使用 TagLibSharp 读取标签（MediaInfo.Wrapper.Core 不支持 net461） -->
+  <!-- net461: 使用 MediaInfo.Wrapper 读取标签（MediaInfo.Wrapper.Core 最低 netstandard2.1 无法用于 net461，
+       改用面向 .NET Framework 4.0+ 的 MediaInfo.Wrapper，其原生库由 MediaInfo.Native 提供，DLL 名为 MediaInfo.dll） -->
 
   <!-- ============================================================
        生成后：将依赖 DLL 移到输出目录下的 libs\ 子目录，
@@ -73,6 +78,10 @@
       <!-- 排除原生 DLL（MediaInfo.dll 等），否则 DllImport 找不到 -->
       <_DepDll Remove="$(TargetDir)MediaInfo.dll" />
       <_DepDll Remove="$(TargetDir)MediaInfo_*.*" />
+      <!-- net461: MediaInfo.Wrapper.dll 须留在根目录——其原生库 MediaInfo.dll 按
+           Assembly.Location 目录下的 x64\ 子目录解析（见 MP-MediaInfo GetPathToMediaInfo），
+           移入 libs\ 后只剩依赖进程 CWD 的路径可用，不稳 -->
+      <_DepDll Remove="$(TargetDir)MediaInfo.Wrapper.dll" />
     </ItemGroup>
     <MakeDir Directories="$(TargetDir)libs" Condition="!Exists('$(TargetDir)libs')" />
     <Move SourceFiles="@(_DepDll)" DestinationFolder="$(TargetDir)libs" />
