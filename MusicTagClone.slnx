@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MusicTagClone/MusicTagClone.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MusicTagClone.Tests/MusicTagClone.Tests.csproj" />
+  </Folder>
+</Solution>

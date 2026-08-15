@@ -1,0 +1,32 @@
+# .NET build output
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.DotSettings
+
+# NuGet packages
+packages/
+
+# Logs
+*.log
+log/
+
+# Runtime data (created in the app directory at run time)
+MusicTagClone.db
+cache/
+temp/
+
+# Verify / build scratch output
+verify-output/
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# OS junk
+Thumbs.db
+.DS_Store

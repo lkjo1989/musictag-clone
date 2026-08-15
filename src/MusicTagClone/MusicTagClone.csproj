@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net10.0-windows;net461</TargetFrameworks>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- .NET 10: 启用 WinForms -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <!-- .NET Framework 4.6.1 -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
+  <!-- net461: 程序集引用和全局 using -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="Microsoft.CSharp" />
+    <Using Include="System" />
+    <Using Include="System.Drawing" />
+    <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Net.Http" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Windows.Forms" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+  </ItemGroup>
+
+  <!-- FontAwesome 版本（按框架） -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="FontAwesome.Sharp" Version="6.1.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <PackageReference Include="FontAwesome.Sharp" Version="6.6.0" />
+  </ItemGroup>
+
+  <!-- 通用依赖 -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+  </ItemGroup>
+
+  <!-- net10.0: 使用 MediaInfo 读取标签（更稳健的格式支持） -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <PackageReference Include="MediaInfo.Wrapper.Core" Version="26.1.0" />
+  </ItemGroup>
+
+  <!-- net461: 使用 TagLibSharp 读取标签（MediaInfo.Wrapper.Core 不支持 net461） -->
+
+  <!-- ============================================================
+       生成后：将依赖 DLL 移到输出目录下的 libs\ 子目录，
+       与 exe 分开，保持根目录整洁。
+       net461: App.config probing privatePath
+       .NET 10: AssemblyLoadContext 在 ModuleInitializer 中注册
+       ============================================================ -->
+  <Target Name="MoveDepsToLibs" AfterTargets="Build">
+    <ItemGroup>
+      <_DepDll Include="$(TargetDir)*.dll" Exclude="$(TargetDir)$(AssemblyName).dll" />
+      <!-- 排除原生 DLL（MediaInfo.dll 等），否则 DllImport 找不到 -->
+      <_DepDll Remove="$(TargetDir)MediaInfo.dll" />
+      <_DepDll Remove="$(TargetDir)MediaInfo_*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(TargetDir)libs" Condition="!Exists('$(TargetDir)libs')" />
+    <Move SourceFiles="@(_DepDll)" DestinationFolder="$(TargetDir)libs" />
+  </Target>
+
+</Project>
