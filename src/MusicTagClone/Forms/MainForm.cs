@@ -1999,7 +1999,7 @@ public partial class MainForm : Form
 
     private async void OnCheckUpdate(object? sender, EventArgs e)
     {
-        MessageBox.Show(this, "MusicTag Clone v1.0.0\n已是最新版本。", "检查更新",
+        MessageBox.Show(this, $"MusicTag Clone v{AppInfo.VersionString}\n已是最新版本。", "检查更新",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
         await Task.CompletedTask;
     }

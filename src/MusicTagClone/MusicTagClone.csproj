@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <!-- 应用版本号（同时生成程序集版本与文件版本） -->
+    <Version>0.8.0</Version>
   </PropertyGroup>
 
   <!-- .NET 10: 启用 WinForms -->

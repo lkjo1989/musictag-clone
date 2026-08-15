@@ -30,7 +30,7 @@ public partial class AboutDialog : Form
 
         var versionLabel = new Label
         {
-            Text = "版本 1.0.0",
+            Text = $"版本 {AppInfo.VersionString}",
             Location = new Point(20, 60),
             Width = 340,
             TextAlign = ContentAlignment.MiddleCenter
