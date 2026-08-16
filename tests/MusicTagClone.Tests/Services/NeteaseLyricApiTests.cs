@@ -19,6 +19,7 @@ namespace MusicTagClone.Tests.Services;
 ///     搜索周杰伦返回的结果都是翻唱版本，歌词可能不带 LRC 时间轴。
 ///     测试使用 Beyond / 陈奕迅 / Taylor Swift 等确认有版权的歌曲。
 /// </summary>
+[Trait("Category", "Network")] // 联网测试，CI 跳过
 public class NeteaseLyricApiTests
 {
     #region 单曲歌词直连

@@ -10,6 +10,7 @@ namespace MusicTagClone.Tests.GUI;
 /// 主窗口 GUI 测试 — 使用 FlaUI + Windows UI Automation
 /// 测试文件位于 D:\binary\testfile\ (8 个音频文件: MP3/FLAC/M4A)
 /// </summary>
+[Trait("Category", "GUI")] // UI 自动化测试，CI 跳过
 public class MainFormTests : IDisposable
 {
     private Application? _app;

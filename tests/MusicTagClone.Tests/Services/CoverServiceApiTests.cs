@@ -16,6 +16,7 @@ namespace MusicTagClone.Tests.Services;
 ///   4. 下载失败时输出诊断信息（状态码、响应头等）
 ///   5. 国外网站使用默认代理 http://127.0.0.1:7890
 /// </summary>
+[Trait("Category", "Network")] // 联网测试，CI 跳过
 public class CoverServiceApiTests : IDisposable
 {
     private readonly CoverService _service;

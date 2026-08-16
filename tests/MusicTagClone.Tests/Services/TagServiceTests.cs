@@ -62,36 +62,39 @@ public class TagServiceTests : IDisposable
     // 记录每种格式是否支持位深读取
     // ============================================
 
-    [Fact]
+    [SkippableFact] // 依赖仓库外真实样本音频，缺失时跳过（如 CI）
     public async Task TagService_BitsPerSample_Mp3_ReturnsNull()
     {
         // MP3 格式不存储位深信息，TagLibSharp 和 MediaInfo 均无法获取
         var path = TestFile("曲锦楠 - 霞光.mp3");
-        Assert.NotNull(path);
+        Skip.If(path is null, "缺少样本文件 testfile/曲锦楠 - 霞光.mp3，跳过位深测试");
+        Assert.NotNull(path); // 为编译器收窄可空性
 
         var tags = await _service.ReadTagsAsync(path);
         Assert.NotNull(tags);
         Assert.Null(tags.BitsPerSample);
     }
 
-    [Fact]
+    [SkippableFact] // 依赖仓库外真实样本音频，缺失时跳过（如 CI）
     public async Task TagService_BitsPerSample_M4a_ReturnsNull()
     {
         // AAC(M4A) 格式不存储位深信息
         var path = TestFile("F.I.R. - 你的微笑.m4a");
-        Assert.NotNull(path);
+        Skip.If(path is null, "缺少样本文件 testfile/F.I.R. - 你的微笑.m4a，跳过位深测试");
+        Assert.NotNull(path); // 为编译器收窄可空性
 
         var tags = await _service.ReadTagsAsync(path);
         Assert.NotNull(tags);
         Assert.Null(tags.BitsPerSample);
     }
 
-    [Fact]
+    [SkippableFact] // 依赖仓库外真实样本音频，缺失时跳过（如 CI）
     public async Task TagService_BitsPerSample_Flac_ReturnsValue()
     {
         // FLAC 原生存储位深，可以正确读取
         var path = TestFile("ClariS - CLICK.flac");
-        Assert.NotNull(path);
+        Skip.If(path is null, "缺少样本文件 testfile/ClariS - CLICK.flac，跳过位深测试");
+        Assert.NotNull(path); // 为编译器收窄可空性
 
         var tags = await _service.ReadTagsAsync(path);
         Assert.NotNull(tags);

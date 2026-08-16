@@ -19,6 +19,7 @@ namespace MusicTagClone.Tests.Services;
 ///   - album.search 搜索的是专辑名，不是歌曲名
 ///   - 使用默认代理 http://127.0.0.1:7890 访问国外网站
 /// </summary>
+[Trait("Category", "Network")] // 联网测试，CI 跳过
 public class CoverServiceLastfmTests
 {
     private readonly CoverService _service;

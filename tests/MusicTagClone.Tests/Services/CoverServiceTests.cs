@@ -8,6 +8,7 @@ namespace MusicTagClone.Tests.Services;
 /// <summary>
 /// 封面服务测试 — 本地逻辑测试 + 在线API测试
 /// </summary>
+[Trait("Category", "Network")] // 含在线 API 测试，CI 跳过
 public class CoverServiceTests : IDisposable
 {
     private readonly string _tempDir;

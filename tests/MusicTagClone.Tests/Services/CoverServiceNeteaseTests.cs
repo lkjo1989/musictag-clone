@@ -17,6 +17,7 @@ namespace MusicTagClone.Tests.Services;
 ///   - 网络依赖测试，要求机器有互联网连接
 ///   - 网易云 API 可能有频率限制，批量测试时注意间隔
 /// </summary>
+[Trait("Category", "Network")] // 联网测试，CI 跳过
 public class CoverServiceNeteaseTests
 {
     private readonly CoverService _service;

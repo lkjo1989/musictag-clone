@@ -24,6 +24,10 @@ temp/
 # Verify / build scratch output
 verify-output/
 
+# CI 打包中间产物与 zip（工作流内生成）
+dist/
+dist-staging/
+
 # Claude Code local settings (machine-specific)
 .claude/settings.local.json
 

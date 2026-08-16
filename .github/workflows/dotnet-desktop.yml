@@ -1,115 +1,89 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# GitHub Actions 工作流：构建并发布 MusicTagClone（音乐标签）
+#
+# 功能：
+#   1. 在 windows-latest 上编译 net10.0-windows 与 net461 两个目标框架（Release）
+#   2. 运行离线单元测试（跳过 Category=Network / GUI，样本文件测试缺失时自动跳过）
+#   3. 将两个目标框架的构建产物分别打包为 zip（剔除运行时数据 cache/、log/、MusicTagClone.db）
+#   4. 上传为 workflow artifact；推 v* 标签时自动创建 GitHub Release 并附带两个 zip
+#
+# 说明：
+#   - 产物直接取 bin/Release/<tfm>/ 构建输出（含 libs/ 与 x64/x86 原生库、runtimes/）。
+#     不要用 dotnet publish —— publish 会把 libs/ 子目录结构拍平，破坏程序集加载。
+#   - 打 v* 标签时用标签版本（去掉前导 v）覆盖程序集版本，帮助菜单显示的版本号与标签一致。
 
-# This workflow will build, test, sign and package a WPF or Windows Forms desktop application
-# built on .NET Core.
-# To learn how to migrate your existing application to .NET Core,
-# refer to https://docs.microsoft.com/en-us/dotnet/desktop-wpf/migration/convert-project-from-net-framework
-#
-# To configure this workflow:
-#
-# 1. Configure environment variables
-# GitHub sets default environment variables for every workflow run.
-# Replace the variables relative to your project in the "env" section below.
-#
-# 2. Signing
-# Generate a signing certificate in the Windows Application
-# Packaging Project or add an existing signing certificate to the project.
-# Next, use PowerShell to encode the .pfx file using Base64 encoding
-# by running the following Powershell script to generate the output string:
-#
-# $pfx_cert = Get-Content '.\SigningCertificate.pfx' -Encoding Byte
-# [System.Convert]::ToBase64String($pfx_cert) | Out-File 'SigningCertificate_Encoded.txt'
-#
-# Open the output file, SigningCertificate_Encoded.txt, and copy the
-# string inside. Then, add the string to the repo as a GitHub secret
-# and name it "Base64_Encoded_Pfx."
-# For more information on how to configure your signing certificate for
-# this workflow, refer to https://github.com/microsoft/github-actions-for-desktop-apps#signing
-#
-# Finally, add the signing certificate password to the repo as a secret and name it "Pfx_Key".
-# See "Build the Windows Application Packaging project" below to see how the secret is used.
-#
-# For more information on GitHub Actions, refer to https://github.com/features/actions
-# For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
-# refer to https://github.com/microsoft/github-actions-for-desktop-apps
-
-name: .NET Core Desktop
+name: 构建并发布
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-
   build:
-
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
-
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-
-    env:
-      Solution_Name: your-solution-name                         # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      Wap_Project_Directory: your-wap-project-directory-name    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: your-wap-project-path                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout
+    - name: 检出代码
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
+    - name: 安装 .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
-
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test
-
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
-
-    # Decode the base 64 encoded pfx and save the Signing_Certificate
-    - name: Decode the pfx
+    # 打 v* 标签时解析出版本号（如 v0.9.0 → 0.9.0），用于覆盖程序集版本；分支/PR 构建为空
+    - name: 解析发布版本
+      id: version
+      shell: pwsh
       run: |
-        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
-        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+        $ver = ''
+        if ($env:GITHUB_REF -match '^refs/tags/v(.+)$') { $ver = $Matches[1] }
+        Write-Output "version=$ver" >> $env:GITHUB_OUTPUT
 
-    # Create the app package by building and packaging the Windows Application Packaging project
-    - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
-      env:
-        Appx_Bundle: Always
-        Appx_Bundle_Platforms: x86|x64
-        Appx_Package_Build_Mode: StoreUpload
-        Configuration: ${{ matrix.configuration }}
+    - name: 编译解决方案（net10.0-windows + net461）
+      shell: pwsh
+      run: |
+        $buildArgs = @()
+        $ver = "${{ steps.version.outputs.version }}"
+        if ($ver) { $buildArgs += "-p:Version=$ver" }
+        dotnet build MusicTagClone.slnx -c Release @buildArgs
 
-    # Remove the pfx
-    - name: Remove the pfx
-      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
+    - name: 运行离线单元测试（跳过联网与 GUI）
+      shell: pwsh
+      run: dotnet test tests/MusicTagClone.Tests/MusicTagClone.Tests.csproj -c Release --no-build --filter "Category!=Network&Category!=GUI"
 
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
-    - name: Upload build artifacts
+    - name: 打包 net461
+      shell: pwsh
+      run: |
+        $stage = 'dist-staging/net461'
+        New-Item -ItemType Directory -Force -Path $stage | Out-Null
+        Copy-Item -Path 'src/MusicTagClone/bin/Release/net461/*' -Destination $stage -Recurse -Force
+        Remove-Item -Recurse -Force "$stage/cache", "$stage/log", "$stage/MusicTagClone.db" -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Force -Path 'dist' | Out-Null
+        Compress-Archive -Path "$stage/*" -DestinationPath 'dist/MusicTagClone-net461.zip' -Force
+
+    - name: 打包 net10.0-windows
+      shell: pwsh
+      run: |
+        $stage = 'dist-staging/net10'
+        New-Item -ItemType Directory -Force -Path $stage | Out-Null
+        Copy-Item -Path 'src/MusicTagClone/bin/Release/net10.0-windows/*' -Destination $stage -Recurse -Force
+        Remove-Item -Recurse -Force "$stage/cache", "$stage/log", "$stage/MusicTagClone.db" -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Force -Path 'dist' | Out-Null
+        Compress-Archive -Path "$stage/*" -DestinationPath 'dist/MusicTagClone-net10.0-windows.zip' -Force
+
+    - name: 上传构建产物
       uses: actions/upload-artifact@v4
       with:
-        name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+        name: MusicTagClone-packages
+        path: dist/*.zip
+        if-no-files-found: error
+
+    - name: 创建 GitHub Release（仅 v* 标签）
+      if: startsWith(github.ref, 'refs/tags/')
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: gh release create "${{ github.ref_name }}" dist/*.zip --generate-notes
