@@ -172,7 +172,12 @@ public class LyricServiceTests
         Assert.True(_service.SupportsPagination(source));
     }
 
-    /// <summary>逐源真实验证剩余歌词源的 limit/offset 分页。</summary>
+    #endregion
+
+    #region 在线API测试 — 联网测试，CI 跳过（标记 Category=Network）
+
+    /// <summary>逐源真实验证剩余歌词源的 limit/offset 分页（联网，CI 跳过）。</summary>
+    [Trait("Category", "Network")]
     [Theory]
     [InlineData("qq")]
     [InlineData("kugou")]
@@ -207,10 +212,7 @@ public class LyricServiceTests
         Assert.DoesNotContain(secondPage, result => firstKeys.Contains(result.GetIdentityKey()));
     }
 
-    #endregion
-
-    #region 在线API测试 — 接口不通时标记为待解决
-
+    [Trait("Category", "Network")] // 联网测试，CI 跳过
     [Fact]
     public async Task SearchLyricsAsync_Netease_ReturnsResults()
     {
@@ -240,6 +242,7 @@ public class LyricServiceTests
         }
     }
 
+    [Trait("Category", "Network")] // 联网测试，CI 跳过
     [Fact]
     public async Task SearchLyricsAsync_QQMusic_ReturnsResults()
     {
@@ -271,6 +274,7 @@ public class LyricServiceTests
         }
     }
 
+    [Trait("Category", "Network")] // 联网测试，CI 跳过
     [Fact]
     public async Task SearchLyricsAsync_Kugou_ReturnsResults()
     {
@@ -300,6 +304,7 @@ public class LyricServiceTests
         }
     }
 
+    [Trait("Category", "Network")] // 联网测试，CI 跳过
     [Fact]
     public async Task SearchLyricsAsync_Kuwo_ReturnsResults()
     {
@@ -328,6 +333,7 @@ public class LyricServiceTests
         }
     }
 
+    [Trait("Category", "Network")] // 联网测试，CI 跳过
     [Fact]
     public async Task DownloadLyricAsync_WithValidUrl_ReturnsLyric()
     {

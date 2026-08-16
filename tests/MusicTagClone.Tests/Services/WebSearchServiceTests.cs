@@ -6,8 +6,9 @@ using MusicTagClone.Services;
 namespace MusicTagClone.Tests.Services;
 
 /// <summary>
-/// 综合搜索服务测试 — 在线API测试
+/// 综合搜索服务测试 — 在线API测试（联网，CI 跳过）
 /// </summary>
+[Trait("Category", "Network")] // 联网测试，CI 跳过
 public class WebSearchServiceTests
 {
     private readonly WebSearchService _service;
