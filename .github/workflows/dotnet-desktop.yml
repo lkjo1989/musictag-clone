@@ -23,6 +23,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write  # gh release create 需要写 contents 权限（默认 GITHUB_TOKEN 是只读）
 
     steps:
     - name: 检出代码
