@@ -73,6 +73,8 @@ jobs:
         New-Item -ItemType Directory -Force -Path $stage | Out-Null
         Copy-Item -Path 'src/MusicTagClone/bin/Release/net10.0-windows/*' -Destination $stage -Recurse -Force
         Remove-Item -Recurse -Force "$stage/cache", "$stage/log", "$stage/MusicTagClone.db" -ErrorAction SilentlyContinue
+        # 剔除 Linux/macOS 等非 Windows 平台的 MediaInfo 原生库（仅需 win-x64/win-x86，可节省约 500MB）
+        Get-ChildItem "$stage/runtimes" -Directory | Where-Object { $_.Name -notlike 'win-*' } | Remove-Item -Recurse -Force
         New-Item -ItemType Directory -Force -Path 'dist' | Out-Null
         Compress-Archive -Path "$stage/*" -DestinationPath 'dist/MusicTagClone-net10.0-windows.zip' -Force
 
